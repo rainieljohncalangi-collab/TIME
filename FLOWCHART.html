@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestSync — System Flowchart & Build Guide</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6fb;
+            color: #1f2933;
+            line-height: 1.6;
+            padding: 24px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #fff;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+            text-align: center;
+        }
+        header h1 { font-size: 2rem; margin-bottom: 8px; }
+        header p { opacity: .9; font-size: 1.05rem; }
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 14px rgba(0,0,0,.06);
+        }
+        .card h2 {
+            font-size: 1.4rem;
+            color: #1e3a8a;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .card h3 { color: #2563eb; margin: 18px 0 8px; font-size: 1.1rem; }
+        .mermaid { background: #fafbff; border-radius: 10px; padding: 16px; margin: 12px 0; overflow-x: auto; }
+        .legend {
+            display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0; font-size: .9rem;
+        }
+        .legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend .box { width: 18px; height: 18px; border-radius: 4px; display: inline-block; }
+        .box-green { background: #dcfce7; border: 2px solid #16a34a; }
+        .box-blue { background: #dbeafe; border: 2px solid #2563eb; }
+        .box-purple { background: #ede9fe; border: 2px solid #7c3aed; }
+        .box-orange { background: #ffedd5; border: 2px solid #ea580c; }
+        .box-red { background: #fee2e2; border: 2px solid #dc2626; }
+        .steps { list-style: none; counter-reset: step; }
+        .steps li {
+            counter-increment: step;
+            position: relative;
+            padding: 14px 14px 14px 52px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid #2563eb;
+        }
+        .steps li::before {
+            content: counter(step);
+            position: absolute; left: 14px; top: 14px;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: #2563eb; color: #fff; text-align: center;
+            font-weight: 700; font-size: .9rem; line-height: 26px;
+        }
+        .steps li b { color: #1e3a8a; }
+        code {
+            background: #eef2ff; color: #4338ca; padding: 2px 6px;
+            border-radius: 5px; font-size: .9em;
+        }
+        .tag { display: inline-block; background: #e0e7ff; color: #3730a3; padding: 2px 10px; border-radius: 20px; font-size: .8rem; margin-right: 6px; }
+        .note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-size: .95rem; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+        .file-box { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 16px; font-family: monospace; font-size: .85rem; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .9rem; }
+        th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+        th { background: #eef2ff; color: #3730a3; }
+        .btn { display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; }
+        .btn:hover { background: #1e40af; }
+        .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .toolbar button { background: #fff; border: 2px solid #2563eb; color: #2563eb; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .toolbar button:hover { background: #2563eb; color: #fff; }
+        /* Print layout para sa BOND PAPER (Letter 8.5x11in) */
+        @page {
+            size: letter portrait;
+            margin: 10mm;
+        }
+        @media print {
+            body { padding: 0; background: #fff; }
+            .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+            .toolbar button { display: none; }
+            .card { padding: 14px; margin-bottom: 12px; }
+            .card h2 { font-size: 1.1rem; margin-bottom: 10px; }
+            .card h3 { font-size: .95rem; margin: 12px 0 6px; }
+            .mermaid { padding: 8px; margin: 8px 0; }
+            h1 { font-size: 1.4rem; }
+            .steps li { padding: 8px 8px 8px 42px; margin-bottom: 6px; font-size: .85rem; }
+            .steps li::before { width: 22px; height: 22px; line-height: 22px; font-size: .8rem; left: 10px; top: 10px; }
+            code { font-size: .8em; }
+            table { font-size: .8rem; }
+            .note { font-size: .85rem; padding: 8px 12px; }
+            .file-box { font-size: .75rem; padding: 10px; }
+            .grid { gap: 10px; }
+        }
+        .print-notes {
+            background: #f0f9ff;
+            border: 1px dashed #38bdf8;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: .95rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>📱 TestSync — System Flowchart & Build Guide</h1>
+        <p>Paano binuo ang OMR Scanner Website + Android App (Step-by-Step)</p>
+</header>
+
+    <div class="toolbar">
+        <button onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button onclick="document.getElementById('guide').scrollIntoView({behavior:'smooth'})">📋 Step-by-Step Guide</button>
+        <button onclick="document.getElementById('architecture').scrollIntoView({behavior:'smooth'})">🏗️ Architecture</button>
+    </div>
+
+    <div class="print-notes">
+        📌 <b>Para sa BOND PAPER:</b> I-click ang <b>Ctrl + P</b> → Sa Print dialog piliin ang:
+        <b>Destination: Save as PDF o iyong printer</b> • <b>Paper size: Letter (8.5 x 11 in)</b> •
+        <b>Margins: Default</b> • <b>Scale: 100%</b> (o "Fit to printable area" kung kinakailangan).
+        <br>✅ Naka-format na ito para eksaktong tumugma sa bond paper (Letter size).
+    </div>
+
+    <!-- ============ 0. LEGEND ============ -->
+    <div class="card">
+        <h2>Legend (Color Code)</h2>
+        <div class="legend">
+            <span><span class="box box-green"></span> Website / Frontend</span>
+            <span><span class="box box-blue"></span> Backend / Server</span>
+            <span><span class="box box-purple"></span> Android App</span>
+            <span><span class="box box-orange"></span> Database / Storage</span>
+            <span><span class="box box-red"></span> Decision / Condition</span>
+        </div>
+    </div>
+
+    <!-- ============ 1. ARCHITECTURE ============ -->
+    <div class="card" id="architecture">
+        <h2>1. System Architecture Overview</h2>
+        <p>Ang buong system ay may 3 pangunahing bahagi na nagtutulungan:</p>
+        <div class="mermaid">
+flowchart TD
+    subgraph WEB["🌐 Website (Browser)"]
+        LOG["log.html<br/><i>Login</i>"]
+        REG["register.html<br/><i>Register</i>"]
+        DASH["dashboard.html<br/><i>Dashboard</i>"]
+        OMR["testsync-omr-sheet.html<br/><i>Print OMR Sheet</i>"]
+        INSTALL["install-apk.html<br/><i>Download APK</i>"]
+    end
+
+    subgraph SERVER["⚙️ Backend (server.js — Express)"]
+        API["REST API<br/><i>/api/*</i>"]
+        QR["/api/qr<br/><i>Self-hosted QR</i>"]
+        AUTH["Google OAuth<br/>+ bcrypt login"]
+    end
+
+    subgraph DB["🗄️ MongoDB (Mongoose)"]
+        USERS["Users Collection"]
+        QUIZZES["Quizzes Collection"]
+        SCORES["Scores Collection"]
+        RECORDS["Record Files Collection"]
+    end
+
+    subgraph ANDROID["📱 Android App (Kotlin + CameraX)"]
+        TAB1["Setup Tab<br/><i>Pick Quiz + IP</i>"]
+        TAB2["Print Tab<br/><i>Show QR Sheet</i>"]
+        TAB3["Scan Tab<br/><i>Camera Preview</i>"]
+        TAB4["Results Tab<br/><i>History</i>"]
+        SCANNER["OpenCV OmrScanner"]
+        LOCALDB["Room Database<br/><i>Offline cache</i>"]
+    end
+
+    LOG -->|POST /api/login| API
+    REG -->|POST /api/register| API
+    DASH -->|CRUD quizzes| API
+    OMR -->|GET /api/qr| QR
+    INSTALL -->|GET /apk| SERVER
+
+    API --> USERS
+    API --> QUIZZES
+    API --> SCORES
+    API --> RECORDS
+    AUTH --> USERS
+
+    SERVER -->|"HTTP sync (Wi-Fi)"| ANDROID
+    TAB1 --> LOCALDB
+    SERVER -->|GET /api/quizzes| TAB1
+    TAB2 --> SERVER
+    TAB3 --> SCANNER
+    SCANNER -->|POST /api/scores| API
+    TAB4 --> LOCALDB
+    TAB4 -->|POST /api/scores| API
+        </div>
+    </div>
+
+    <!-- ============ 2. WEBSITE FLOW ============ -->
+    <div class="card">
+        <h2>2. Website Flowchart (User Journey)</h2>
+        <div class="mermaid">
+flowchart TD
+    A["🌐 Teacher opens<br/>localhost:5000"] --> B{"May account ba?"}
+    B -->|"Wala"| C["register.html<br/>Register form"]
+    C --> D["POST /api/register<br/>bcrypt hash password"]
+    D --> E{"Valid Gmail?"}
+    E -->|"Oo"| F["✅ Na-save sa MongoDB<br/>Users Collection"]
+    E -->|"Wala"| C
+    B -->|"Oo"| G["log.html<br/>Login (username/password)"]
+    G --> H["POST /api/login<br/>Verify bcrypt"]
+    H --> I{"Tama ang credentials?"}
+    I -->|"Oo"| J["✅ Dashboard"]
+    I -->|"Wala"| G
+    B -->|"Google option"| K["/auth/google<br/>Google OAuth"]
+    K --> L["Google callback →<br/>google-callback.html"]
+    L --> M["Auto-create user<br/>+ redirect to dashboard"]
+    J --> N["Create Quiz<br/>POST /api/quizzes"]
+    N --> O["Answer key: A=0,B=1,C=2,D=3,E=4<br/>totalItems 1–100"]
+    O --> P["Quiz saved in<br/>Quizzes Collection"]
+    P --> Q["Generate OMR Sheet<br/>/omr-sheet"]
+    Q --> R["GET /api/qr?data=JSON<br/>QR code sa tuktok ng sheet"]
+    J --> S["Dashboard → Download<br/>/install"]
+    S --> T["app-debug.apk<br/>mga-teacher i-install"]
+    P --> U["📱 Android app syncs<br/>quizzes via Wi-Fi"]
+        </div>
+    </div>
+
+    <!-- ============ 3. ANDROID FLOW ============ -->
+    <div class="card">
+        <h2>3. Android App Flowchart</h2>
+        <div class="mermaid">
+flowchart TD
+    A["📱 Open app<br/>MainActivity.kt"] --> B["OpenCVLoader.initLocal()"]
+    B --> C["Load saved server IP<br/>SharedPreferences"]
+    C --> D["Load quizzes from<br/>Room (local cache)"]
+    D --> E["Sync quizzes from server<br/>GET /api/quizzes"]
+    E --> F{"May 4 tabs: Setup,<br/>Print, Scan, Results"}
+    F --> G["Setup Tab<br/>Piliin quiz + IP"]
+    F --> H["Print Tab<br/>Re-buffer ng OMR sheet<br/>para sa pang-copy"]
+    F --> I["Scan Tab<br/>Start camera (CameraX)"]
+    F --> J["Results Tab<br/>Score history"]
+    I --> K["📷 capturePaper()<br/>kumuha ng photo"]
+    K --> L["rotateBitmapFromExif()<br/>ayusin ang orientation"]
+    L --> M["ML Kit: decodeQrThenScanAnswers()<br/>basa ng QR JSON"]
+    M --> N{"Valid TestSync QR?"}
+    N -->|"Wala"| O["❌ Error message<br/>'Hindi mabasa ang QR'"]
+    N -->|"Oo"| P{"Quiz at items match?"}
+    P -->|"Wala"| O
+    P -->|"Oo"| Q["OpenCV OmrScanner.scanPaper()"]
+    Q --> R["findCorners()<br/>4 black anchor squares"]
+    R --> S{"May 4 markers?"}
+    S -->|"Wala"| T["❌ 'Hindi makita ang<br/>anchor squares'"]
+    S -->|"Oo"| U["warpPerspective()<br/>i-align nang tuwid ang sheet"]
+    U --> V["readBubbles()<br/>basa ng A/B/C/D/E bubbles"]
+    V --> W["Compute score<br/>compare vs answerKey"]
+    W --> X["ResultActivity.kt<br/>ipakita ang results detail"]
+    X --> Y["POST /api/scores<br/>save sa MongoDB"]
+    Y --> Z["✅ Score saved"]
+    X --> AA["Save sa Room<br/>para offline history"]
+        </div>
+    </div>
+
+    <!-- ============ 4. DATA FLOW ============ -->
+    <div class="card">
+        <h2>4. Data Flow & Network</h2>
+        <div class="grid">
+            <div>
+                <h3>Quiz Sync (Server → Phone)</h3>
+                <div class="mermaid">
+flowchart LR
+    A["Teacher creates quiz<br/>sa website"] --> B["MongoDB<br/>Quizzes Collection"]
+    B --> C["Android app<br/>GET /api/quizzes"]
+    C --> D["Room cache<br/>(offline available)"]
+    D --> E["Quiz dropdown<br/>sa Setup tab"]
+                </div>
+            </div>
+            <div>
+                <h3>Score Upload (Phone → Server)</h3>
+                <div class="mermaid">
+flowchart LR
+    A["Scan result<br/>ResultActivity"] --> B["POST /api/scores<br/>studentName, score, quizId"]
+    B --> C["MongoDB<br/>Scores Collection"]
+    C --> D["Dashboard history<br/>GET /api/scores"]
+    D --> E["Filter: section,<br/>academicYear, recordFile"]
+                </div>
+            </div>
+        </div>
+        <h3>QR Code Data Format</h3>
+        <p>Ang QR code sa OMR sheet ay naglalaman ng JSON na nire-render ng server:</p>
+        <div class="file-box">
+{
+  "app": "TestSync",
+  "name": "Student Name",
+  "items": 50,
+  "quizId": "6639f...",
+  "pageStart": 1,
+  "pageItems": 50,
+  "paper": "long",
+  "section": "Section A",
+  "academicYear": "2025-2026",
+  "recordFileId": ""
+}
+        </div>
+        <p>Ginagamit ito ng <code>parseSheetQr()</code> sa Android para malaman ang student, quiz, page, at paper-type bago mag-scan.</p>
+    </div>
+
+    <!-- ============ 5. FOLDER STRUCTURE ============ -->
+    <div class="card">
+        <h2>5. Project Structure (Paano Naka-organize)</h2>
+        <div class="grid">
+            <div>
+                <h3>🌐 Root (Website + Backend)</h3>
+                <div class="file-box">
+├── server.js            ← Express backend + API
+├── package.json         ← Dependencies
+├── log.html             ← Login page
+├── register.html        ← Registration
+├── dashboard.html       ← Teacher dashboard
+├── profile.html         ← Profile
+├── forgorp.html         ← Forgot password
+├── testsync-omr-sheet.html ← Printable OMR sheet
+├── install-apk.html     ← APK download page
+├── google-callback.html ← Google OAuth redirect
+└── .env                 ← MongoDB, Google creds
+                </div>
+            </div>
+            <div>
+                <h3>📱 android-scanner/ (Android App)</h3>
+                <div class="file-box">
+├── app/src/main/java/com/example/testsync/
+│   ├── MainActivity.kt      ← Root: camera + tabs
+│   ├── OmrScanner.kt        ← OpenCV bubble reader
+│   ├── ResultActivity.kt    ← Scan results screen
+│   ├── ScoreHistoryActivity.kt
+│   ├── ItemResult.kt        ← Result model
+│   ├── fragments/
+│   │   ├── SetupFragment.kt
+│   │   ├── PrintFragment.kt
+│   │   ├── ScanFragment.kt
+│   │   └── ResultsFragment.kt
+│   ├── network/
+│   │   ├── RetrofitClient.kt ← HTTP client
+│   │   └── ScanCheckApi.kt   ← API interface
+│   └── database/             ← Room (offline cache)
+└── app/build.gradle.kts     ← Dependencies (CameraX, OpenCV, ML Kit)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 6. BUILD GUIDE ============ -->
+    <div class="card" id="guide">
+        <h2>6. Step-by-Step Build Guide (Paano Ito Ginawa)</h2>
+        <h3>Bahagi 1: Backend (server.js)</h3>
+        <ol class="steps">
+            <li><b>Setup ng Express server</b> — I-install ang <code>express</code>, <code>cors</code>, <code>mongoose</code>, <code>bcryptjs</code>, <code>google-auth-library</code>, <code>qrcode</code>. Gumawa ng <code>server.js</code> na nagsi-serve ng static HTML files at nagla-listen sa port 5000.</li>
+            <li><b>Kumonekta sa MongoDB</b> — Gamit ang <code>mongoose.connect()</code> sa <code>MONGO_URI</code>. May auto-retry kada 5 segundo kung hindi pa ready ang database.</li>
+            <li><b>Gumawa ng Models</b> — <code>User</code>, <code>Quiz</code>, <code>Score</code>, at <code>RecordFile</code> schemas. Ang <code>answerKey</code> ay ginagamit ng both web at Android (A=0, B=1, C=2, D=3, E=4).</li>
+            <li><b>REST API Endpoints</b> — <code>/api/register</code>, <code>/api/login</code>, <code>/api/quizzes</code> (CRUD), <code>/api/scores</code>, <code>/api/record-files</code>, <code>/api/verify-account</code>, <code>/api/reset-password</code>, <code>/api/google-login</code>.</li>
+            <li><b>Google OAuth</b> — <code>OAuth2Client</code> para sa <code>/auth/google</code> at <code>/auth/google/callback</code>. Nire-redirect sa <code>google-callback.html</code> na may user info sa URL params.</li>
+            <li><b>Self-hosted QR</b> — <code>GET /api/qr?data=...</code> gumagamit ng <code>QRCode.toString()</code> para mag-render ng SVG QR. Hindi na umaasa sa external API kaya gumagana kahit offline.</li>
+            <li><b>APK download route</b> — <code>/install</code> nag-serve ng page, <code>/apk</code> nag-download ng <code>app-debug.apk</code>.</li>
+        </ol>
+
+        <h3>Bahagi 2: Website Frontend</h3>
+        <ol class="steps">
+            <li><b>Login & Register</b> — <code>log.html</code> at <code>register.html</code> na may form na nag-call sa API gamit <code>fetch()</code>. May Google login button din.</li>
+            <li><b>Dashboard</b> — <code>dashboard.html</code> para sa teacher: gumawa ng quiz, mag-edit, mag-delete, at makita ang scores. May download APK button.</li>
+            <li><b>OMR Sheet</b> — <code>testsync-omr-sheet.html</code> na SVG-based. May 4 black anchor squares at bubbles na eksaktong tugma sa geometry ng <code>OmrScanner.kt</code> sa Android. Ang QR ay nasa tuktok.</li>
+            <li><b>Install page</b> — <code>install-apk.html</code> na may instructions at link sa <code>/apk</code>.</li>
+        </ol>
+
+        <h3>Bahagi 3: Android App</h3>
+        <ol class="steps">
+            <li><b>Setup ng project</b> — Gumawa ng <code>android-scanner</code> folder na may <code>build.gradle.kts</code>. Dependencies: <b>CameraX</b> (camera), <b>ML Kit</b> (QR detection), <b>OpenCV</b> (image processing), <b>Retrofit</b> (HTTP), <b>Room</b> (offline DB).</li>
+            <li><b>MainActivity</b> — Root activity. Nag-load ng OpenCV, nag-setup ng 4 tabs (Setup, Print, Scan, Results), nag-load ng saved IP, at nag-sync ng quizzes mula sa server.</li>
+            <li><b>Camera + Flash</b> — CameraX <code>Preview</code> + <code>ImageCapture</code>. May flash toggle at auto-focus na touch-to-focus.</li>
+            <li><b>capturePaper()</b> — Kumukuha ng high-quality photo, ini-save sa file, inaayos ang orientation base sa EXIF data.</li>
+            <li><b>decodeQrThenScanAnswers()</b> — ML Kit binabasa ang QR. Kung valid, kinukuha ang quiz, items, at paper type. Tapos ipapasa sa <code>OmrScanner</code>.</li>
+            <li><b>OmrScanner.scanPaper()</b> — OpenCV pipeline: gray → adaptive threshold → hanapin ang 4 na anchor squares → <code>warpPerspective</code> para i-align → <code>readBubbles()</code> para basahin ang mga sagot → compare vs answerKey.</li>
+            <li><b>ResultActivity</b> — Ipinapakita ang per-item results (Correct/Wrong/Blank) at ang total score. May save sa server at sa Room.</li>
+            <li><b>RetrofitClient</b> — Dynamic na base URL. Ang IP ay kino-configure sa Setup tab (default: <code>192.168.100.3:5000</code>).</li>
+        </ol>
+
+        <h3>Bahagi 4: Pag-connect ng Lahat</h3>
+        <ol class="steps">
+            <li><b>Same Wi-Fi</b> — Dapat nasa parehong network ang computer (server) at ang phone para mag-communicate.</li>
+            <li><b>Print ng OMR sheet</b> — I-print ang <code>testsync-omr-sheet.html</code> sa 100% actual size.</li>
+            <li><b>Build APK</b> — Sa <code>android-scanner</code> folder, i-run ang <code>./gradlew assembleDebug</code> para makagawa ng <code>app-debug.apk</code>.</li>
+            <li><b>Install sa phone</b> — I-upload ang APK sa <code>/apk</code> route, o i-install directly sa phone via USB/copy.</li>
+            <li><b>Scan</b> — Piliin ang quiz, ituro ang camera sa OMR sheet, at i-scan. May flash para sa low-light.</li>
+        </ol>
+    </div>
+
+    <!-- ============ 7. TECH STACK TABLE ============ -->
+    <div class="card">
+        <h2>7. Tech Stack Summary</h2>
+        <table>
+            <tr><th>Layer</th><th>Technology</th><th>Gamit</th></tr>
+            <tr><td>Backend</td><td>Node.js + Express</td><td>REST API server</td></tr>
+            <tr><td>Database</td><td>MongoDB + Mongoose</td><td>Store users, quizzes, scores</td></tr>
+            <tr><td>Auth</td><td>bcryptjs + Google OAuth</td><td>Password hashing + Google login</td></tr>
+            <tr><td>QR</td><td>qrcode npm</td><td>Self-hosted QR generation</td></tr>
+            <tr><td>Frontend</td><td>HTML + CSS + JS</td><td>Web pages (dashboard, OMR sheet)</td></tr>
+            <tr><td>Android</td><td>Kotlin</td><td>Native app language</td></tr>
+            <tr><td>Camera</td><td>CameraX</td><td>Camera preview + photo capture</td></tr>
+            <tr><td>QR scan</td><td>ML Kit</td><td>Barcode/QR detection</td></tr>
+            <tr><td>Image process</td><td>OpenCV</td><td>Anchor detection + bubble reading</td></tr>
+            <tr><td>Network</td><td>Retrofit + OkHttp</td><td>HTTP communication</td></tr>
+            <tr><td>Offline DB</td><td>Room</td><td>Local quiz/score cache</td></tr>
+        </table>
+        <div class="note">
+            💡 <b>Tip:</b> Ang pinakamahalagang bahagi ay ang <b>pag-sync ng geometry</b> sa pagitan ng <code>testsync-omr-sheet.html</code> (web SVG) at <code>OmrScanner.kt</code> (Android). Ang bubble positions, row gaps, at paper sizes ay dapat eksaktong tugma para gumana ang scanning. Ang <code>layoutFor()</code> sa OmrScanner ay nakakopya ng eksaktong values mula sa HTML.
+        </div>
+    </div>
+
+    <div style="text-align:center; color:#64748b; font-size:.85rem; padding: 20px;">
+        TestSync — OMR Scanner System Flowchart & Build Guide • Generated documentation
+    </div>
+</div>
+
+<script>
+    mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#dbeafe', primaryBorderColor: '#2563eb', primaryTextColor: '#1e3a8a', lineColor: '#64748b' } });
+</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Teacher: TestSync</title>
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            background: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+        .wrapper{  
+            width: 400px;
+            background: #fff;
+            padding: 40px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        .wrapper h1{ 
+            text-align: center;
+            font-size: 32px;
+            color: maroon;
+            margin-bottom: 5px;
+        }
+        .wrapper h2{ 
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+
+        .input-box {
+            width: 90%;
+            margin: 15px 0;
+        }
+
+        .input-box input {
+            width: 100%;
+            height: 45px;
+            padding: 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            background: #fff;
+            box-sizing: border-box; /* Para hindi lumampas ang padding */
+        }
+
+        .input-box input:focus {
+            border-color: maroon;
+        }
+
+        /* Istilo para sa Show Password section */
+        .show-password-container {
+            width: 90%;
+            text-align: left;
+            margin: -5px 0 15px 0;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .show-password-container input {
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: maroon; /* Kulay ng checkbox kapag naka-check */
+        }
+
+        .btn{
+            width: 45%;
+            height: 45px;
+            border: none;
+            border-radius: 5px;
+            background: maroon;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #600000;
+        }
+
+        .register-link {
+            margin-top: 20px;
+        }
+
+        .register-link p {
+            font-size: 15px;
+            color: #333;
+        }
+
+        .register-link a {
+            color: maroon;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-bottom: 10px;
+            min-height: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="responsive.css">
+</head>
+<body>
+    <div class="wrapper">
+        <form id="scanCheckRegisterForm">
+            <h1>Register</h1>
+            <h2>Teacher Portal</h2>
+
+            <center>
+            <div id="errorDisplay" class="error-message"></div>
+
+            <div class="input-box">
+                <input type="text" id="username" name="username" placeholder="Choose Username" required>
+            </div>
+
+            <div class="input-box">
+                <input type="email" id="email" name="email" placeholder="Gmail Address" required>
+            </div>
+
+            <input type="hidden" id="role" name="role" value="teacher">
+
+            <div class="input-box">
+                <input type="password" id="password" name="password" placeholder="Create Password" required>
+            </div>
+
+            <div class="input-box">
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+            </div>
+            
+            <div class="show-password-container">
+                <label><input type="checkbox" id="togglePassword"> Show Password</label>
+            </div>
+            
+            <button type="submit" class="btn">Create Account</button>
+
+            <div class="register-link">
+                <p>Already have an account? <a href="log.html"><b>Login</b></a></p>
+            </div>
+            </center>
+        </form>
+    </div>
+
+    <script>
+        const registerForm = document.getElementById('scanCheckRegisterForm');
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const roleInput = document.getElementById('role');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const errorDisplay = document.getElementById('errorDisplay');
+        
+        function getApiBase() {
+            const protocol = window.location.protocol || 'http:';
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+
+            if (hostname && hostname !== '0.0.0.0' && hostname !== '::') {
+                if (port) {
+                    return `${protocol}//${hostname}:${port}`;
+                }
+                return `${protocol}//${hostname}`;
+            }
+
+            return 'http://127.0.0.1:5000';
+        }
+
+        // Element para sa toggling ng password visibility
+        const togglePassword = document.getElementById('togglePassword');
+
+        // Function para baguhin ang uri ng input (mula 'password' patungong 'text')
+        togglePassword.addEventListener('change', function() {
+            if (this.checked) {
+                passwordInput.type = 'text';
+                confirmPasswordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
+                confirmPasswordInput.type = 'password';
+            }
+        });
+
+        // DAGDAG DITO: Ginawa nating 'async function(event)' para gumana ang 'await fetch'
+        registerForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+
+            const username = usernameInput.value.trim();
+            const email = emailInput.value.trim().toLowerCase();
+            const role = roleInput.value; 
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            errorDisplay.innerText = ""; 
+
+            if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email)) {
+                errorDisplay.innerText = "Please enter a valid Gmail address ending in @gmail.com.";
+                return;
+            }
+
+            // Validation Check 1: Passwords Match
+            if (password !== confirmPassword) {
+                errorDisplay.innerText = "Passwords do not match.";
+                return;
+            }
+
+            // Validation Check 2: Password Complexity Enforcement
+            const hasLetters = /[a-zA-Z]/.test(password);
+            const hasUppercase = /[A-Z]/.test(password);
+            const isAllNumbers = /^\d+$/.test(password);
+
+            if (isAllNumbers) {
+                errorDisplay.innerText = "Password cannot be entirely numbers.";
+                return;
+            }
+            if (!hasLetters || !hasUppercase) {
+                errorDisplay.innerText = "Password must include letters and at least one uppercase letter (Caps).";
+                return;
+            }
+
+            try {
+                const apiBase = getApiBase();
+
+                const response = await fetch(`${apiBase}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, role, password })
+                });
+
+                const data = await response.json();
+
+                // Kung may error mula sa backend, ipakita ito
+                if (!response.ok) {
+                    errorDisplay.innerText = data.message;
+                    return;
+                }
+
+                // Kung matagumpay, mag-alert at pumunta sa login page
+                alert(data.message);
+                window.location.href = "log.html";
+            } catch (err) {
+                errorDisplay.innerText = "Cannot connect to server. Is the backend running?";
+            }
+        }); // MGA bracket na isinara para hindi na magka-syntax error
+    </script>
+</body>
+</html>

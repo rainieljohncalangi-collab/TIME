@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password: TestSync</title>
+    <style>
+        /* CSS Reset at Layout */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            background: #f0f2f5;
+        }
+        .wrapper {  
+            width: 400px;
+            background: #fff;
+            padding: 40px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .wrapper h1 { 
+            text-align: center;
+            font-size: 32px;
+            color: maroon;
+            margin-bottom: 5px;
+        }
+        .wrapper h2 { 
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+        .input-box {
+            width: 100%;
+            margin: 15px 0;
+        }
+        .input-box input {
+            width: 100%;
+            height: 45px;
+            padding: 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            background: #fff;
+        }
+        .input-box input:focus {
+            border-color: maroon;
+        }
+        .show-password-container {
+            width: 100%;
+            text-align: left;
+            margin: -5px 0 15px 0;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+        }
+        .show-password-container input {
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: maroon;
+        }
+        .btn {
+            width: 100%;
+            height: 45px;
+            border: none;
+            border-radius: 5px;
+            background: maroon;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+            transition: background 0.2s ease;
+        }
+        .btn:hover {
+            background: #600000;
+        }
+        .login-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .login-link p {
+            font-size: 15px;
+            color: #333;
+        }
+        .login-link a {
+            color: maroon;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Message Displays */
+        .message-display {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 15px;
+            min-height: 20px;
+        }
+        .message-display.error {
+            color: #dc3545;
+        }
+        .message-display.success {
+            color: #28a745;
+        }
+
+        /* Class para itago ang mga elements */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <form id="scanCheckForgotForm">
+            <h1>Reset</h1>
+            <h2>Teacher Portal</h2>
+
+            <div id="stepVerify">
+                <div id="messageDisplay1" class="message-display"></div>
+
+                <div class="input-box">
+                    <input type="text" id="username" placeholder="Enter Username" required>
+                </div>
+
+                <div class="input-box">
+                    <input type="email" id="email" placeholder="Enter Gmail Address" required>
+                </div>
+
+                <button type="button" id="btnCheckAccount" class="btn">Verify Account</button>
+            </div>
+
+            <div id="stepNewPassword" class="hidden">
+                <div id="messageDisplay2" class="message-display"></div>
+
+                <div class="input-box">
+                    <input type="password" id="newPassword" placeholder="Create New Password">
+                </div>
+
+                <div class="input-box">
+                    <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+                </div>
+                
+                <div class="show-password-container">
+                    <label><input type="checkbox" id="togglePassword"> Show Password</label>
+                </div>
+
+                <button type="submit" class="btn">Update Password</button>
+            </div>
+
+            <div class="login-link">
+                <p>Remembered your password? <a href="log.html">Login</a></p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const forgotForm = document.getElementById('scanCheckForgotForm');
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+
+        const stepVerify = document.getElementById('stepVerify');
+        const stepNewPassword = document.getElementById('stepNewPassword');
+
+        const messageDisplay1 = document.getElementById('messageDisplay1');
+        const messageDisplay2 = document.getElementById('messageDisplay2');
+
+        const btnCheckAccount = document.getElementById('btnCheckAccount');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const togglePassword = document.getElementById('togglePassword');
+
+        function getApiBase() {
+            const protocol = window.location.protocol || 'http:';
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+
+            if (hostname && hostname !== '0.0.0.0' && hostname !== '::') {
+                if (port) {
+                    return `${protocol}//${hostname}:${port}`;
+                }
+                return `${protocol}//${hostname}`;
+            }
+
+            return 'http://127.0.0.1:5000';
+        }
+
+        // 1. PAG-VERIFY NG ACCOUNT (Step 1)
+        btnCheckAccount.addEventListener('click', async function(event) {
+            event.preventDefault(); 
+
+            if (!usernameInput || !emailInput) {
+                console.error("Error: Kulang ng input elements sa HTML.");
+                return;
+            }
+
+            const username = usernameInput.value.trim();
+            const email = emailInput.value.trim();
+
+            messageDisplay1.innerText = ""; 
+            messageDisplay1.className = "message-display"; 
+
+            if (!username || !email) {
+                messageDisplay1.innerText = "Please fill in all fields.";
+                messageDisplay1.classList.add('error');
+                return;
+            }
+
+            try {
+                const apiBase = getApiBase();
+
+                const response = await fetch(`${apiBase}/api/verify-account`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email }) 
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    messageDisplay1.innerText = data.message;
+                    messageDisplay1.classList.add('error');
+                    return;
+                }
+
+                // Swabeng paglipat sa Step 2 nang walang reloads
+                stepVerify.classList.add('hidden');
+                stepNewPassword.classList.remove('hidden');
+
+                newPasswordInput.setAttribute('required', 'true');
+                confirmPasswordInput.setAttribute('required', 'true');
+
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                messageDisplay1.innerText = `Cannot connect to server. ${err.message || 'Is the backend running?'}`;
+                messageDisplay1.classList.add('error');
+            }
+        });
+
+        // 2. SHOW/HIDE PASSWORD VISIBILITY
+        togglePassword.addEventListener('change', function() {
+            if (this.checked) {
+                newPasswordInput.type = 'text';
+                confirmPasswordInput.type = 'text';
+            } else {
+                newPasswordInput.type = 'password';
+                confirmPasswordInput.type = 'password';
+            }
+        });
+
+        // 3. PAG-SUBMIT NG BAGONG PASSWORD (Step 2)
+        forgotForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+
+            const username = usernameInput.value.trim();
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            messageDisplay2.innerText = "";
+            messageDisplay2.className = "message-display";
+
+            if (newPassword !== confirmPassword) {
+                messageDisplay2.innerText = "Passwords do not match.";
+                messageDisplay2.classList.add('error');
+                return;
+            }
+
+            // Password rules
+            const hasLetters = /[a-zA-Z]/.test(newPassword);
+            const hasUppercase = /[A-Z]/.test(newPassword);
+            const isAllNumbers = /^\d+$/.test(newPassword);
+
+            if (isAllNumbers) {
+                messageDisplay2.innerText = "Password cannot be entirely numbers.";
+                messageDisplay2.classList.add('error');
+                return;
+            }
+            if (!hasLetters || !hasUppercase) {
+                messageDisplay2.innerText = "Password must include letters and at least one uppercase letter.";
+                messageDisplay2.classList.add('error');
+                return;
+            }
+
+            try {
+                const apiBase = getApiBase();
+
+                const response = await fetch(`${apiBase}/api/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, newPassword })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    messageDisplay2.innerText = data.message;
+                    messageDisplay2.classList.add('error');
+                    return;
+                }
+
+                // Tagumpay!
+                messageDisplay2.innerText = "Password updated successfully! You can now manually log in.";
+                messageDisplay2.classList.add('success');
+
+                newPasswordInput.value = "";
+                confirmPasswordInput.value = "";
+
+            } catch (err) {
+                messageDisplay2.innerText = `Cannot connect to server. ${err.message || 'Is the backend running?'}`;
+                messageDisplay2.classList.add('error');
+            }
+        });
+    </script>
+</body>
+</html>

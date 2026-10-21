@@ -1,0 +1,76 @@
+/* Shared cross-device improvements for TestSync pages. */
+html { min-width: 0; }
+body { min-width: 0; }
+img, video, canvas, svg { max-width: 100%; }
+button, input, select, textarea { max-width: 100%; }
+
+@media (max-width: 768px) {
+  body { overflow-x: hidden; }
+
+  .sidebar {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+    gap: 4px;
+    padding: max(10px, env(safe-area-inset-top)) 12px 10px !important;
+  }
+
+  .sidebar-title {
+    flex: 1 0 100%;
+    margin: 0 0 4px !important;
+    padding: 0 0 8px !important;
+    font-size: 18px !important;
+    text-align: left !important;
+  }
+
+  .sidebar a, .sidebar .dropdown-btn {
+    flex: 1 1 auto;
+    width: auto !important;
+    min-height: 44px;
+    padding: 11px 10px !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    white-space: normal;
+  }
+
+  .dropdown-container {
+    flex: 1 0 100%;
+    width: 100% !important;
+    padding-left: 0 !important;
+  }
+
+  .main-container, main, .content, .page-container {
+    width: 100%;
+    min-width: 0;
+    padding: 16px !important;
+  }
+
+  .header-section, .filter-section, .panel-header, .toolbar, .form-row {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .header-section > *, .filter-section > *, .panel-header > *, .toolbar > * {
+    min-width: 0;
+  }
+
+  input, select, textarea, button { font-size: 16px; }
+  table { max-width: 100%; }
+  .scores-table, .table-wrap, .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .scores-table th, .scores-table td { white-space: nowrap; }
+}
+
+@media (max-width: 480px) {
+  .sidebar { padding-left: 8px !important; padding-right: 8px !important; }
+  .sidebar a, .sidebar .dropdown-btn { font-size: 12px !important; padding: 10px 6px !important; }
+  .main-container, main, .content, .page-container { padding: 10px !important; }
+  .content-box, .panel, .card { padding: 12px !important; }
+  .folder-header { gap: 7px; padding: 12px !important; }
+  .folder-section { flex-basis: 100%; }
+}
+
+@media (min-width: 769px) {
+  body { overflow-x: hidden; }
+}

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScanCheck: QR-Based Answer Evaluation System</title>
+   
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            background: #ffffff;
+        }
+
+        .wrapper {
+            width: 400px;
+            background: #fff;
+            padding: 40px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .wrapper h1 {
+            text-align: center;
+            font-size: 36px;
+            color: maroon;
+            margin-bottom: 5px;
+        }
+
+        .wrapper h2 { 
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+
+        .input-box {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .input-box input {
+            width: 100%;
+            height: 45px;
+            padding: 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .input-box input:focus {
+            border-color: maroon;
+        }
+
+        .show-password-container {
+            width: 100%;
+            text-align: left;
+            margin: -5px 0 15px 0;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .show-password-container input {
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: maroon;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .forgot-password a {
+            text-decoration: none;
+            color: maroon;
+            font-size: 15px;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            height: 45px;
+            border: none;
+            border-radius: 5px;
+            background: maroon;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #600000;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .register-link p {
+            color: #333;
+            font-size: 15px;
+        }
+
+        .register-link a {
+            color: maroon;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 15px;
+            min-height: 20px;
+        }
+
+        .google-login {
+            width: 100%;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .google-note {
+            font-size: 13px;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .divider {
+            margin: 24px 0 12px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+    </style>
+    <link rel="stylesheet" href="responsive.css">
+</head>
+<body>
+     
+    <div class="wrapper">
+        <form id="scanCheckLoginForm">
+            <h1>Login</h1>
+            <h2>Teacher Portal</h2>
+
+            <div id="errorDisplay" class="error-message"></div>
+
+            <div class="input-box">
+                <input type="text" id="username" name="username" placeholder="Username or Gmail" required>
+            </div>
+
+            <div class="input-box" id="passwordBox">
+                <input type="password" id="password" name="password" placeholder="Password" required>
+            </div>
+
+            <div class="show-password-container">
+                <label><input type="checkbox" id="togglePassword"> Show Password</label>
+            </div>
+
+            <div class="forgot-password">
+                <a href="forgorp.html">Forgot Password?</a>
+            </div>
+
+            <div class="Login">
+               <button type="submit" class="btn">Login</button> 
+            </div>            
+
+            <div class="google-note" style="margin-top: 12px; text-align: center; color: #555;">
+                Para sa Google login: huwag punan ang password sa itaas. I-click ang button sa ibaba at ilagay lang ang Gmail address.
+            </div>
+
+            <div class="register-link">
+                <p>Don't have an account? <a href="register.html">Register</a></p>
+            </div>
+
+            <div class="divider">OR</div>
+
+            <div class="google-login">
+                <button id="googleSignInBtn" class="btn" type="button">Sign in with Google</button>
+                <p class="google-note">This uses real Google OAuth. You will sign in through Google and enter your Google password on Google's page.</p>
+                <p id="backendStatus" class="google-note" style="margin-top:8px;color:#b22;">Checking backend...</p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        if (localStorage.getItem('currentScanCheckUser')) {
+            window.location.href = "dashboard.html";
+        }
+
+        const loginForm = document.getElementById('scanCheckLoginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const errorDisplay = document.getElementById('errorDisplay');
+        const togglePassword = document.getElementById('togglePassword');
+
+        function getApiBase() {
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+
+            if (hostname && hostname !== '0.0.0.0' && hostname !== '::') {
+                if (port) {
+                    return `${window.location.protocol}//${hostname}:${port}`;
+                }
+                return `${window.location.protocol}//${hostname}`;
+            }
+
+            return 'http://127.0.0.1:5000';
+        }
+
+        togglePassword.addEventListener('change', function() {
+            if (this.checked) {
+                passwordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
+            }
+        });
+
+        const fallbackAdminUser = "admin";
+        const fallbackAdminPass = "scancheck2026";
+
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            errorDisplay.innerText = "";
+
+            if (username.includes('@') && !/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(username)) {
+                errorDisplay.innerText = "Please use a valid Gmail address ending in @gmail.com.";
+                return;
+            }
+
+            try {
+                const apiBase = getApiBase();
+
+                const response = await fetch(`${apiBase}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorDisplay.innerText = data.message;
+                    return;
+                }
+
+                // Kung admin ang nag-login, sine-save din sa localStorage ang data nito
+                if (data.role === "admin") {
+                    localStorage.setItem('currentScanCheckUser', JSON.stringify({ username: fallbackAdminUser, role: "admin" }));
+                    window.location.href = "dashboard.html";
+                    return;
+                }
+
+                // 2. PINALITAN: Mula sessionStorage, ginawang localStorage para sa persistent login data
+                localStorage.setItem('currentScanCheckUser', JSON.stringify(data.user));
+                window.location.href = "dashboard.html";
+
+            } catch (err) {
+                errorDisplay.innerText = "Cannot connect to server. Is the backend running?";
+            }
+        });
+
+        async function checkBackend() {
+            const statusEl = document.getElementById('backendStatus');
+            try {
+                const apiBase = getApiBase();
+                const response = await fetch(`${apiBase}/api/health`);
+                if (!response.ok) {
+                    statusEl.innerText = 'Backend unreachable. Start the server.';
+                    return;
+                }
+                const data = await response.json();
+                statusEl.innerText = data.ok ? 'Backend is running.' : 'Backend health check failed.';
+                statusEl.style.color = data.ok ? '#1a7f37' : '#b22';
+            } catch (err) {
+                statusEl.innerText = 'Backend unreachable. Start the server.';
+                statusEl.style.color = '#b22';
+            }
+        }
+
+        document.getElementById('googleSignInBtn').addEventListener('click', function() {
+            errorDisplay.innerText = '';
+            try {
+                const apiBase = getApiBase();
+                window.location.href = `${apiBase}/auth/google`;
+            } catch (err) {
+                errorDisplay.innerText = 'Cannot connect to server. Is the backend running?';
+            }
+        });
+
+        checkBackend();
+    </script>
+</body>
+</html>

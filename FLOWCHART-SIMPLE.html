@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Flowchart & Data Flow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+            color: #111827;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #1d4ed8;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        }
+        .card h2 {
+            color: #1d4ed8;
+            font-size: 1.2rem;
+            margin-bottom: 14px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        .card h3 {
+            color: #374151;
+            font-size: 1rem;
+            margin: 16px 0 8px;
+        }
+        .mermaid {
+            background: #fafbff;
+            border-radius: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            text-align: center;
+        }
+        .print-btn {
+            display: block;
+            margin: 0 auto 20px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .print-btn:hover { background: #1e40af; }
+        /* Print layout para sa BOND PAPER (Letter 8.5x11in) */
+        @page {
+            size: letter portrait;
+            margin: 10mm;
+        }
+        @media print {
+            body { background: #fff; padding: 0; }
+            .print-btn { display: none; }
+            .card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+            .card h2 { font-size: 1rem; margin-bottom: 8px; }
+            .card h3 { font-size: .9rem; margin: 10px 0 6px; }
+            .mermaid { padding: 6px; margin: 6px 0; }
+            h1 { font-size: 1.3rem; margin-bottom: 4px; }
+            .subtitle { margin-bottom: 10px; font-size: .85rem; }
+            .container { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 SIMPLE FLOWCHART & DATA FLOW</h1>
+    <p class="subtitle">OMR Answer Sheet Scanner — Website at Android App</p>
+
+    <button class="print-btn" onclick="window.print()">🖨️ I-print / I-save bilang PDF</button>
+
+<!-- ===== SIMPLE LOGIN FLOWCHART ===== -->
+    <div class="card">
+        <h2>1. LOGIN SYSTEM (Daloy ng Pag-login)</h2>
+        <div class="mermaid">
+flowchart TD
+    A([🎬 START]) --> B[🌐 Teacher mag-login<br/>sa WEBSITE]
+    B --> C{"May <br/>account na ba?"}
+    C -- WALA --> D[📝 Mag-register<br/>register.html]
+    D --> E[🗄️ I-save sa Database<br/>Users Collection]
+    C -- MAY --> F[🔑 Login form<br/>log.html]
+    E --> F
+    F --> G[🖥️ I-verify ang<br/>Username at Password<br/>POST /api/login]
+    G --> H{"Tama ba ang<br/>credentials?"}
+    H -- HINDI --> I[❌ Error: Maling<br/>username/password]
+    I --> F
+    H -- OO --> J[✅ DASHBOARD<br/>makapasok sa system]
+    J --> K([🏁 TAPOS])
+        </div>
+        <h3>O Login gamit Google (OAuth)</h3>
+        <div class="mermaid">
+flowchart TD
+    A([🎬 START]) --> B[🔵 Pindutin ang<br/>Login with Google]
+    B --> C[🔐 Google Page<br/>Piliin ang account]
+    C --> D[✅ I-verify ang email<br/>POST /api/google-login]
+    D --> E{"Bago ba ang<br/>email?"}
+    E -- OO --> F[📝 Auto-gumawa ng<br/>account]
+    E -- HINDI --> G
+    F --> G[✅ DASHBOARD]
+    G --> H([🏁 TAPOS])
+        </div>
+    </div>
+
+    <!-- ===== SIMPLE FLOWCHART ===== -->
+    <div class="card">
+        <h2>2. SIMPLE FLOWCHART (Pangkalahatang Daloy)</h2>
+        <p style="margin-bottom:10px;"><i>⚠️ Para makapasok sa system, kailangan munang mag-login (tingnan ang Section 1).</i></p>
+        <div class="mermaid">
+flowchart TD
+    A([🎬 START]) --> B[🔑 Login sa WEBSITE]
+    B --> C[✅ DASHBOARD<br/>nakapasok na]
+    C --> D[🌐 Teacher gumawa ng Quiz]
+    D --> E[🗄️ Naka-save sa Database<br/>MongoDB]
+    E --> F[📱 Android App<br/>Mag-sync ng Quiz]
+    F --> G[🖨️ I-print ang OMR Sheet<br/>na may QR Code]
+    G --> H[📷 I-scan ang Sheet<br/>gamit ang app]
+    H --> I[Nabasa ba ang QR?]
+    I -- HINDI --> J[❌ Error: Hindi mabasa]
+    I -- OO --> K[🤖 I-process ang larawan<br/>OpenCV: basahin ang bubbles]
+    K --> L[✓ Kalkulahin ang SCORE]
+    L --> M[📊 Ipakita ang Resulta<br/>+ I-save sa Database]
+    M --> N([🏁 TAPOS])
+        </div>
+    </div>
+
+    <!-- ===== DATA FLOW ===== -->
+    <div class="card">
+        <h2>3. SIMPLE DATA FLOW (Daloy ng Data)</h2>
+
+        <h3>A. Quiz Sync (Website → Phone)</h3>
+        <div class="mermaid">
+flowchart LR
+    W("🌐 WEBSITE<br/>Gumawa ng Quiz") --> S("🖥️ SERVER<br/>node server.js")
+    S --> D("🗄️ DATABASE<br/>Quizzes")
+    D --> S
+    S --> P("📱 PHONE<br/>Sync ang Quiz")
+        </div>
+
+        <h3>B. Score Upload (Phone → Website)</h3>
+        <div class="mermaid">
+flowchart LR
+    A("📱 PHONE<br/>Mag-scan at makakuha<br/>ng score") --> S("🖥️ SERVER<br/>POST /api/scores")
+    S --> D("🗄️ DATABASE<br/>Scores")
+    D --> S
+    S --> W("🌐 WEBSITE<br/>Makita ang scores<br/>ng mga estudyante")
+        </div>
+
+        <h3>C. Buong Data Flow</h3>
+        <div class="mermaid">
+flowchart LR
+    A{"👨‍🏫 TEACHER"} -->|"1. Gumawa ng quiz"| WEB["🌐 WEBSITE"]
+    WEB -->|"2. I-save"| DB[("🗄️ MONGODB")]
+    DB -->|"3. I-sync"| APP["📱 ANDROID APP"]
+    APP -->|"4. I-scan ang sagot"| SCAN["📷 Scan → Score"]
+    SCAN -->|"5. I-upload ang score"| DB
+    DB -->|"6. Makita ang resulta"| WEB
+        </div>
+    </div>
+
+<!-- ===== SIMPLE EXPLANATION ===== -->
+    <div class="card">
+        <h2>4. Simpleng Paliwanag</h2>
+        <p><b>🚀 Paano gumagana:</b></p>
+        <ul style="margin: 10px 0 0 20px; line-height: 1.9;">
+            <li>Ang <b>WEBSITE</b> ay para sa teacher: gumawa ng quiz at tingnan ang resulta.</li>
+            <li>Ang <b>DATABASE</b> (MongoDB) ang nag-iimbak ng lahat ng quizzes at scores.</li>
+            <li>Ang <b>ANDROID APP</b> ang siyang nagsi-scan ng mga sagot ng estudyante gamit ang camera.</li>
+            <li>Kapag nag-sync ang phone, <b>dumarating ang quiz</b> mula sa website.</li>
+            <li>Kapag nag-scan ang phone, <b>umuuwi ang score</b> papunta sa website.</li>
+        </ul>
+    </div>
+
+    <p style="text-align:center; color:#9ca3af; font-size:.85rem;">TestSync — Simple Flowchart & Data Flow Document</p>
+</div>
+
+<script>
+    mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#dbeafe', primaryBorderColor: '#2563eb', primaryTextColor: '#1e3a8a', lineColor: '#6b7280' } });
+</script>
+</body>
+</html>
+
